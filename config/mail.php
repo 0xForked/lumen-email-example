@@ -111,4 +111,10 @@ return [
     |
     */
     'log_channel' => env('MAIL_LOG_CHANNEL'),
+
+    // new config
+    'queue_driver' => env('EMAIL_QUEUE_DRIVER', 'mysql'),
+
+    'queue_limit' => env('EMAIL_QUEUE_LIMIT', 3),
+
 ];

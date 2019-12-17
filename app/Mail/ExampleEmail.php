@@ -12,9 +12,9 @@ class ExampleEmail extends Mailable
     use Queueable, SerializesModels;
 
     /**
-     * The order instance.
+     * The data instance.
      *
-     * @var Order
+     * @var data
      */
     public $data;
 

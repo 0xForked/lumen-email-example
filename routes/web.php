@@ -11,8 +11,9 @@
 |
 */
 
-use App\Events\ExampleEvent;
 use App\Mail\ExampleEmail;
+use App\Events\ExampleEvent;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 $router->get('/', function () use ($router) {
@@ -39,9 +40,10 @@ $router->get('/send-email', function() {
 // ? How to: send email with this action
 // run this app `php -S localhost:8080 -t public`
 // or with nginx/apache2 on (linux os) and move to /var/www/html
-// run {dns e.g {ip-address}:{port}}/send-email
+// run {dns e.g {ip-address}:{port}}/send-email-event
 $router->get('send-email-event',  function() {
     $data = [
+        'queueable' => false,
         'to' => 'aasumitro@gmail.com',
         'subject' => 'just test send email with event',
         'message' => 'lorem just test send a email with lumen!'
@@ -54,11 +56,22 @@ $router->get('send-email-event',  function() {
 // ? How to: send email with this action
 // run this app `php -S localhost:8080 -t public`
 // or with nginx/apache2 on (linux os) and move to /var/www/html
+// run {dns e.g {ip-address}:{port}}/send-email-queue to store data on storage
 // ! add this action on crone job
-// * php /{file location}(e.g /var/ww/html) /public/index.php/{function} >> /dev/null 2>&1
-$router->get('send-email-queue/{type}', function() {
-    // TODO: next
-    // create command
-    // create action
-    // type (db, redis, mq)
+// * php /var/www/html/artisan mail:queue-action >> /dev/null 2>&1
+// * to test  php artisan mail:queue-action
+$router->post('send-email-queue', function(Request $request){
+    $this->validate($request, [
+        'to' => 'required|email',
+        'subject' => 'required',
+        'message' => 'required',
+    ]);
+    $data = [
+        'queueable' => true,
+        'to' => $request->to,
+        'subject' => $request->subject,
+        'message' => $request->message
+    ];
+    event(new ExampleEvent($data));
+    echo "email sent to {$data['to']} with event and queue";
 });
