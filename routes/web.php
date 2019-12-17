@@ -56,8 +56,9 @@ $router->get('send-email-event',  function() {
 // or with nginx/apache2 on (linux os) and move to /var/www/html
 // ! add this action on crone job
 // * php /{file location}(e.g /var/ww/html) /public/index.php/{function} >> /dev/null 2>&1
-$router->get('send-email-queue', function() {
+$router->get('send-email-queue/{type}', function() {
     // TODO: next
     // create command
     // create action
+    // type (db, redis, mq)
 });
