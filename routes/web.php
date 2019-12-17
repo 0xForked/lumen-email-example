@@ -58,4 +58,6 @@ $router->get('send-email-event',  function() {
 // * php /{file location}(e.g /var/ww/html) /public/index.php/{function} >> /dev/null 2>&1
 $router->get('send-email-queue', function() {
     // TODO: next
+    // create command
+    // create action
 });
