@@ -6,8 +6,11 @@
     "type": "project",
     "require": {
         "php": "^7.2",
+        "ext-redis": "*",
         "illuminate/mail": "^6.7",
-        "laravel/lumen-framework": "^6.0"
+        "illuminate/redis": "^6.7",
+        "laravel/lumen-framework": "^6.0",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.4",

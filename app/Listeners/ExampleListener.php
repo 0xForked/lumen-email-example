@@ -7,7 +7,7 @@ use App\Events\ExampleEvent;
 use App\Email;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\InteractsWithQueue;
-
+use Illuminate\Support\Facades\Redis;
 
 class ExampleListener
 {
@@ -35,21 +35,36 @@ class ExampleListener
         if (!$data->queueable) {
             $message = (new ExampleEmail($data));
             Mail::to($data->to)->send($message);
-
             if (Mail::failures()) {
                return (Object)['callback' => false];
             }
-
             return (Object)['callback' => true];
         }
 
         // run this action when email setting has queue
-        if ($data->queueable) {
-            Email::create([
-                'to' => $data->to,
-                'subject' => $data->subject,
-                'message' => $data->message
-            ]);
-        }
+        $driver = config('mail.queue_driver');
+        if ($driver == 'mysql') $this->storeOnSql($data);
+        if ($driver == 'redis') $this->storeOnRedis($data);
+        if ($driver == 'rabbitmq') $this->storeOnRabbitMQ($data);
     }
+
+    private function storeOnSql($data)
+    {
+        Email::create([
+            'to' => $data->to,
+            'subject' => $data->subject,
+            'message' => $data->message
+        ]);
+    }
+
+    private function storeOnRedis($data)
+    {
+        Redis::set("email:".time(), json_encode($data));
+    }
+
+    private function storeOnRabbitMQ($data)
+    {
+
+    }
+
 }
