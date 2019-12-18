@@ -8,6 +8,7 @@ use App\Email;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Redis;
+use Bschmitt\Amqp\Facades\Amqp;
 
 class ExampleListener
 {
@@ -31,7 +32,6 @@ class ExampleListener
     {
         $data = (Object)$event->data;
 
-        // run this action when email has queue
         if (!$data->queueable) {
             $message = (new ExampleEmail($data));
             Mail::to($data->to)->send($message);
@@ -59,12 +59,12 @@ class ExampleListener
 
     private function storeOnRedis($data)
     {
-        Redis::set("email:".time(), json_encode($data));
+        Redis::set("email:".time(), );
     }
 
     private function storeOnRabbitMQ($data)
     {
-
+        Amqp::publish('/', json_encode($data), ['queue' => 'email_notify', 'vhost'   => '/email']);
     }
 
 }

@@ -60,6 +60,10 @@ $router->get('send-email-event',  function() {
 // ! add this action on crone job
 // * php /var/www/html/artisan mail:queue-action >> /dev/null 2>&1
 // * to test  php artisan mail:queue-action
+// ! run this artisan command `php artisan mail:queue-action` just 1 time
+// ! when queue driver is rabbitmq / when you user rabbit mq to handle a queue
+// ! because rabbitmq can subscribe to specified topic/vhost and will not close the connection
+// ! when this function `$resolver->stopWhenProcessed();` was disabled/commented
 $router->post('send-email-queue', function(Request $request){
     $this->validate($request, [
         'to' => 'required|email',

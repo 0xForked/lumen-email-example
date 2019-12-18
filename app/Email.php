@@ -20,10 +20,4 @@ class Email extends Model
      */
     protected $fillable = ['to', 'subject', 'message'];
 
-   /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = false;
 }

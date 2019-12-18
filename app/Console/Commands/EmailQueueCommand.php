@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Email;
 use App\Events\ExampleEvent;
+use Bschmitt\Amqp\Facades\Amqp;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,7 +24,7 @@ class EmailQueueCommand extends Command
      *
      * @var string
      */
-    protected $description = "Run email queue";
+    protected $description = "Run email queue (when driver is rabbitmq you can just running this action on first boot)";
 
     /**
      * Create a new command instance.
@@ -56,14 +57,8 @@ class EmailQueueCommand extends Command
                         ->get();
 
         foreach ($emails as $email) {
-            $data = [
-                'queueable' => false,
-                'to' => $email->to,
-                'subject' => $email->subject,
-                'message' => $email->message
-            ];
 
-            $action = event(new ExampleEvent($data));
+            $action = event(new ExampleEvent($this->generateResource($email)));
 
             if (!$action[0]->callback) {
                 $emails = Email::find($email->id);
@@ -85,14 +80,7 @@ class EmailQueueCommand extends Command
 
             $email = json_decode(Redis::get($value));
 
-            $data = [
-                'queueable' => false,
-                'to' => $email->to,
-                'subject' => $email->subject,
-                'message' => $email->message
-            ];
-
-            $action = event(new ExampleEvent($data));
+            $action = event(new ExampleEvent($this->generateResource($email)));
 
             if ($action[0]->callback) {
                 Redis::del($value);
@@ -102,7 +90,27 @@ class EmailQueueCommand extends Command
 
     private function queueOnRabbitMQ()
     {
+        Amqp::consume('email_notify', function ($message, $resolver) {
+            $email = json_decode($message->body);
+            $action = event(new ExampleEvent($this->generateResource($email)));
+            if ($action[0]->callback) {
+                var_dump("Email sent to {$email->to}");
+            }
+            $resolver->acknowledge($message);
+            // $resolver->stopWhenProcessed();
+        }, [
+            'vhost'   => '/email'
+        ]);
+    }
 
+    private function generateResource($email)
+    {
+        return [
+            'queueable' => false,
+            'to' => $email->to,
+            'subject' => $email->subject,
+            'message' => $email->message
+        ];
     }
 
 }
