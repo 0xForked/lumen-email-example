@@ -59,7 +59,7 @@ class ExampleListener
 
     private function storeOnRedis($data)
     {
-        Redis::set("email:".time(), );
+        Redis::set("email:".time(), json_encode($data));
     }
 
     private function storeOnRabbitMQ($data)
