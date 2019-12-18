@@ -50,11 +50,8 @@ class ExampleListener
 
     private function storeOnSql($data)
     {
-        Email::create([
-            'to' => $data->to,
-            'subject' => $data->subject,
-            'message' => $data->message
-        ]);
+        unset($data->queueable);
+        Email::create((Array)$data);
     }
 
     private function storeOnRedis($data)
